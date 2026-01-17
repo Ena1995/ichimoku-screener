@@ -5,69 +5,189 @@
   <title>Ichimoku Trend Screener</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 24px;
-      background: #fafafa;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      background: #fff;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      font-size: 14px;
-    }
-    th {
-      background: #f2f2f2;
-      text-align: left;
-    }
-    tr:nth-child(even) {
-      background: #fbfbfb;
-    }
+    body { font-family: Arial, sans-serif; background:#f8f9fb; margin:0; padding:24px; color:#222; }
+    .wrap { max-width: 1200px; margin: 0 auto; }
+    header { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
+    h1 { margin:0; font-size: 1.8rem; }
+    .meta { color:#666; font-size: 0.95rem; }
+    .controls { display:flex; gap:10px; flex-wrap:wrap; margin: 16px 0; }
+    input, select { padding:10px; border:1px solid #ccc; border-radius:8px; font-size: 0.95rem; background:#fff; }
+    .chip { border:1px solid #e5e5e5; background:#fff; border-radius:999px; padding:6px 10px; font-size:0.9rem; cursor:pointer; }
+    .chip.active { border-color:#bbb; }
+    table { width:100%; border-collapse: collapse; background:#fff; border:1px solid #e5e5e5; border-radius:12px; overflow:hidden; }
+    th, td { padding:12px; border-bottom:1px solid #eee; text-align:left; font-size:0.95rem; }
+    th { background:#fafafa; cursor:pointer; user-select:none; }
+    tr:hover td { background:#fcfcff; }
+    .right { text-align:right; }
+    .muted { color:#777; }
+    .adbox { margin: 14px 0; padding: 14px; border: 1px dashed #cfcfcf; border-radius: 12px; background: #fff; }
+    a { color: inherit; }
   </style>
 </head>
 <body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Ichimoku Trend Screener</h1>
+        <div class="meta">Rules based overview. Educational purposes only. Not financial advice.</div>
+      </div>
+      <div class="meta" id="lastUpdated">Last updated: ...</div>
+    </header>
 
-<h1>Ichimoku Trend Screener</h1>
-<p>Rules-based overview of stocks trending above the Ichimoku cloud.</p>
-<p><em>Educational purposes only. Not financial advice.</em></p>
+    <div class="controls">
+      <input id="search" placeholder="Search ticker..." />
+      <select id="market">
+        <option value="">All markets</option>
+        <option value="UK">UK</option>
+        <option value="US">US</option>
+      </select>
+      <select id="minMomentum">
+        <option value="">Any momentum</option>
+        <option value="70">70+</option>
+        <option value="85">85+</option>
+      </select>
 
-<table id="screener">
-  <thead></thead>
-  <tbody></tbody>
-</table>
+      <button class="chip active" data-top="all" type="button">All</button>
+      <button class="chip" data-top="20" type="button">Top 20</button>
+      <button class="chip" data-top="50" type="button">Top 50</button>
+    </div>
 
-<script>
-fetch("data/screener.csv", { cache: "no-store" })
-  .then(res => res.text())
-  .then(text => {
-    const rows = text.trim().split("\n").map(r => r.split(","));
-    const thead = document.querySelector("#screener thead");
-    const tbody = document.querySelector("#screener tbody");
+    <div class="adbox">
+      Ad space (optional). Keep this box for AdSense later.
+    </div>
 
-    thead.innerHTML =
-      "<tr>" + rows[0].map(h => `<th>${h}</th>`).join("") + "</tr>";
+    <table id="table">
+      <thead>
+        <tr>
+          <th data-key="ticker">Ticker</th>
+          <th data-key="market">Market</th>
+          <th data-key="price" class="right">Price</th>
+          <th data-key="MA50_diff" class="right">MA50 diff %</th>
+          <th data-key="RS_1m" class="right">RS 1m %</th>
+          <th data-key="RS_3m" class="right">RS 3m %</th>
+          <th data-key="Momentum" class="right">Momentum</th>
+          <th data-key="TrendLabel">Label</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-    rows.slice(1).forEach(r => {
-      const tr = document.createElement("tr");
-      r.forEach(c => {
-        const td = document.createElement("td");
-        td.textContent = c;
-        tr.appendChild(td);
+    <p class="meta" style="margin-top:14px;">
+      Data is auto generated. Conditions can change quickly. Always do your own research.
+    </p>
+  </div>
+
+  <script>
+    const state = {
+      rows: [],
+      sortKey: "Momentum",
+      sortAsc: false,
+      top: "all"
+    };
+
+    function parseCSV(text) {
+      const lines = text.trim().split(/\r?\n/);
+      const headers = lines[0].split(",").map(h => h.trim());
+      const rows = lines.slice(1).map(line => {
+        const values = line.split(",").map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i] ?? "");
+        ["price","MA50_diff","RS_1m","RS_3m","Momentum"].forEach(k => {
+          if (obj[k] !== undefined) obj[k] = Number(obj[k]);
+        });
+        return obj;
       });
-      tbody.appendChild(tr);
-    });
-  })
-  .catch(() => {
-    document.body.insertAdjacentHTML(
-      "beforeend",
-      "<p>Error loading screener data.</p>"
-    );
-  });
-</script>
+      return { headers, rows };
+    }
+
+    function fmt(n, digits=2) {
+      if (typeof n !== "number" || !isFinite(n)) return "";
+      return n.toFixed(digits);
+    }
+
+    function applyFilters(rows) {
+      const q = document.getElementById("search").value.toLowerCase();
+      const m = document.getElementById("market").value;
+      const minMom = document.getElementById("minMomentum").value;
+
+      let out = rows.filter(r => {
+        const matchesQ = !q || String(r.ticker || "").toLowerCase().includes(q);
+        const matchesM = !m || String(r.market || "").toUpperCase() === m;
+        const matchesMom = !minMom || (isFinite(r.Momentum) && r.Momentum >= Number(minMom));
+        return matchesQ && matchesM && matchesMom;
+      });
+
+      out.sort((a,b) => {
+        const k = state.sortKey;
+        const av = a[k], bv = b[k];
+        if (typeof av === "number" && typeof bv === "number") return state.sortAsc ? av - bv : bv - av;
+        return state.sortAsc ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
+      });
+
+      if (state.top !== "all") {
+        out = out.slice(0, Number(state.top));
+      }
+      return out;
+    }
+
+    function render() {
+      const rows = applyFilters(state.rows);
+      const tbody = document.querySelector("#table tbody");
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td><a href="stock.html?t=${encodeURIComponent(r.ticker)}&m=${encodeURIComponent(r.market)}">${r.ticker}</a></td>
+          <td class="muted">${r.market || ""}</td>
+          <td class="right">${fmt(r.price)}</td>
+          <td class="right">${fmt(r.MA50_diff)}</td>
+          <td class="right">${fmt(r.RS_1m)}</td>
+          <td class="right">${fmt(r.RS_3m)}</td>
+          <td class="right"><strong>${fmt(r.Momentum,0)}</strong></td>
+          <td>${r.TrendLabel || ""}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function init() {
+      const res = await fetch("data/screener.csv", { cache: "no-store" });
+      const text = await res.text();
+      const parsed = parseCSV(text);
+      state.rows = parsed.rows;
+
+      // last updated: expects an updated_at column in CSV, but fails gracefully if missing
+      const latest = state.rows.find(r => r.updated_at)?.updated_at;
+      document.getElementById("lastUpdated").textContent = latest ? `Last updated: ${latest}` : "Last updated: (add updated_at to CSV)";
+
+      ["search","market","minMomentum"].forEach(id => {
+        document.getElementById(id).addEventListener("input", render);
+        document.getElementById(id).addEventListener("change", render);
+      });
+
+      document.querySelectorAll("th[data-key]").forEach(th => {
+        th.addEventListener("click", () => {
+          const key = th.getAttribute("data-key");
+          if (state.sortKey === key) state.sortAsc = !state.sortAsc;
+          else { state.sortKey = key; state.sortAsc = false; }
+          render();
+        });
+      });
+
+      document.querySelectorAll(".chip").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          state.top = btn.getAttribute("data-top");
+          render();
+        });
+      });
+
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
+
 
 </body>
 </html>
