@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ichimoku Trend Screener</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 24px;
+      background: #fafafa;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #fff;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      font-size: 14px;
+    }
+    th {
+      background: #f2f2f2;
+      text-align: left;
+    }
+    tr:nth-child(even) {
+      background: #fbfbfb;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Ichimoku Trend Screener</h1>
+<p>Rules-based overview of stocks trending above the Ichimoku cloud.</p>
+<p><em>Educational purposes only. Not financial advice.</em></p>
+
+<table id="screener">
+  <thead></thead>
+  <tbody></tbody>
+</table>
+
+<script>
+fetch("data/screener.csv", { cache: "no-store" })
+  .then(res => res.text())
+  .then(text => {
+    const rows = text.trim().split("\n").map(r => r.split(","));
+    const thead = document.querySelector("#screener thead");
+    const tbody = document.querySelector("#screener tbody");
+
+    thead.innerHTML =
+      "<tr>" + rows[0].map(h => `<th>${h}</th>`).join("") + "</tr>";
+
+    rows.slice(1).forEach(r => {
+      const tr = document.createElement("tr");
+      r.forEach(c => {
+        const td = document.createElement("td");
+        td.textContent = c;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+  })
+  .catch(() => {
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      "<p>Error loading screener data.</p>"
+    );
+  });
+</script>
+
+</body>
+</html>
