@@ -77,117 +77,99 @@
     </p>
   </div>
 
-  <script>
-    const state = {
-      rows: [],
-      sortKey: "Momentum",
-      sortAsc: false,
-      top: "all"
-    };
+ <script>
+  const state = {
+    rows: [],
+    sortKey: "Momentum",
+    sortAsc: false,
+    top: "all"
+  };
 
-    function parseCSV(text) {
-      const lines = text.trim().split(/\r?\n/);
-      const headers = lines[0].split(",").map(h => h.trim());
-      const rows = lines.slice(1).map(line => {
-        const values = line.split(",").map(v => v.trim());
-        const obj = {};
-        headers.forEach((h, i) => obj[h] = values[i] ?? "");
-        ["price","MA50_diff","RS_1m","RS_3m","Momentum"].forEach(k => {
-          if (obj[k] !== undefined) obj[k] = Number(obj[k]);
-        });
-        return obj;
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(",").map(h => h.replace(/"/g,"").trim());
+
+    return lines.slice(1).map(line => {
+      const values = line.split(",").map(v => v.replace(/"/g,"").trim());
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = values[i] ?? "");
+      ["price","MA50_diff","RS_1m","RS_3m","Momentum"].forEach(k => {
+        if (obj[k] !== "") obj[k] = Number(obj[k]);
       });
-      return { headers, rows };
-    }
+      return obj;
+    });
+  }
 
-    function fmt(n, digits=2) {
-      if (typeof n !== "number" || !isFinite(n)) return "";
-      return n.toFixed(digits);
-    }
+  function fmt(n, d=2) {
+    return (typeof n === "number" && isFinite(n)) ? n.toFixed(d) : "";
+  }
 
-    function applyFilters(rows) {
-      const q = document.getElementById("search").value.toLowerCase();
-      const m = document.getElementById("market").value;
-      const minMom = document.getElementById("minMomentum").value;
+  function applyFilters(rows) {
+    const q = document.getElementById("search").value.toLowerCase();
+    const m = document.getElementById("market").value;
+    const minMom = document.getElementById("minMomentum").value;
 
-      let out = rows.filter(r => {
-        const matchesQ = !q || String(r.ticker || "").toLowerCase().includes(q);
-        const matchesM = !m || String(r.market || "").toUpperCase() === m;
-        const matchesMom = !minMom || (isFinite(r.Momentum) && r.Momentum >= Number(minMom));
-        return matchesQ && matchesM && matchesMom;
-      });
+    let out = rows.filter(r => {
+      return (!q || r.ticker.toLowerCase().includes(q)) &&
+             (!m || r.market === m) &&
+             (!minMom || r.Momentum >= Number(minMom));
+    });
 
-      out.sort((a,b) => {
-        const k = state.sortKey;
-        const av = a[k], bv = b[k];
-        if (typeof av === "number" && typeof bv === "number") return state.sortAsc ? av - bv : bv - av;
-        return state.sortAsc ? String(av).localeCompare(String(bv)) : String(bv).localeCompare(String(av));
-      });
+    out.sort((a,b) => state.sortAsc ? a[state.sortKey]-b[state.sortKey]
+                                    : b[state.sortKey]-a[state.sortKey]);
 
-      if (state.top !== "all") {
-        out = out.slice(0, Number(state.top));
-      }
-      return out;
-    }
+    if (state.top !== "all") out = out.slice(0, Number(state.top));
+    return out;
+  }
 
-    function render() {
-      const rows = applyFilters(state.rows);
-      const tbody = document.querySelector("#table tbody");
-      tbody.innerHTML = rows.map(r => `
+  function render() {
+    const tbody = document.querySelector("#table tbody");
+    tbody.innerHTML = "";
+
+    applyFilters(state.rows).forEach(r => {
+      tbody.innerHTML += `
         <tr>
-          <td><a href="stock.html?t=${encodeURIComponent(r.ticker)}&m=${encodeURIComponent(r.market)}">${r.ticker}</a></td>
-          <td class="muted">${r.market || ""}</td>
+          <td><a href="stock.html?t=${r.ticker}&m=${r.market}">${r.ticker}</a></td>
+          <td>${r.market}</td>
           <td class="right">${fmt(r.price)}</td>
           <td class="right">${fmt(r.MA50_diff)}</td>
           <td class="right">${fmt(r.RS_1m)}</td>
           <td class="right">${fmt(r.RS_3m)}</td>
           <td class="right"><strong>${fmt(r.Momentum,0)}</strong></td>
-          <td>${r.TrendLabel || ""}</td>
-        </tr>
-      `).join("");
-    }
+          <td>${r.TrendLabel}</td>
+        </tr>`;
+    });
+  }
 
-    async function init() {
-      const res = await fetch("data/screener.csv", { cache: "no-store" });
-      const text = await res.text();
-      const parsed = parseCSV(text);
-      state.rows = parsed.rows;
-
-      // last updated: expects an updated_at column in CSV, but fails gracefully if missing
-      const latest = state.rows.find(r => r.updated_at)?.updated_at;
-      document.getElementById("lastUpdated").textContent = latest ? `Last updated: ${latest}` : "Last updated: (add updated_at to CSV)";
-
-      ["search","market","minMomentum"].forEach(id => {
-        document.getElementById(id).addEventListener("input", render);
-        document.getElementById(id).addEventListener("change", render);
-      });
-
-      document.querySelectorAll("th[data-key]").forEach(th => {
-        th.addEventListener("click", () => {
-          const key = th.getAttribute("data-key");
-          if (state.sortKey === key) state.sortAsc = !state.sortAsc;
-          else { state.sortKey = key; state.sortAsc = false; }
-          render();
-        });
-      });
-
-      document.querySelectorAll(".chip").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          state.top = btn.getAttribute("data-top");
-          render();
-        });
-      });
-
+  fetch("data/screener.csv", { cache: "no-store" })
+    .then(r => r.text())
+    .then(text => {
+      state.rows = parseCSV(text);
+      document.getElementById("lastUpdated").textContent =
+        state.rows[0]?.updated_at
+          ? "Last updated: " + state.rows[0].updated_at
+          : "Last updated: today";
       render();
-    }
+    });
 
-    init();
-  </script>
-</body>
-</html>
+  ["search","market","minMomentum"].forEach(id =>
+    document.getElementById(id).addEventListener("input", render)
+  );
 
+  document.querySelectorAll(".chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".chip").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.top = btn.dataset.top;
+      render();
+    });
+  });
 
-</body>
-</html>
+  document.querySelectorAll("th[data-key]").forEach(th => {
+    th.addEventListener("click", () => {
+      state.sortKey = th.dataset.key;
+      state.sortAsc = !state.sortAsc;
+      render();
+    });
+  });
+</script>
