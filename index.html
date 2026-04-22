@@ -2,64 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ichimoku Trend Screener</title>
+  <title>Ichimoku Trend Screener – Rules-Based Stock Momentum Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Rules-based dashboard highlighting stocks in sustained trend conditions using Ichimoku logic and momentum filters.">
+  <meta name="description" content="A rules-based dashboard highlighting UK and US stocks in sustained trend conditions using Ichimoku logic and momentum filters. Updated daily. Educational purposes only.">
   <meta name="robots" content="index, follow">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Ichimoku Trend Screener</h1>
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">Ichimoku Screener</a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="screener.html">Screener</a></li>
+    <li><a href="how-it-works.html">How It Works</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
 
-<p>
-  A rules-based dashboard highlighting stocks in sustained trend conditions
-  using Ichimoku logic and momentum filters.
-</p>
-
-<p>
-  The screener is updated automatically using daily market data.
-</p>
-
-<p>
-  <a href="screener.html">Open live screener</a>
-</p>
-  <form
-  action="https://buttondown.com/api/emails/embed-subscribe/ichimokutrendscreener"
-  method="post"
-  class="embeddable-buttondown-form"
->
-
-  <!-- ADD THIS LINE -->
-  <input type="hidden" name="tag" value="site-homepage">
-
-  <label for="bd-email">Enter your email</label>
-  <input type="email" name="email" id="bd-email" />
-  <input type="submit" value="Subscribe" />
-
-  <p>
-    <a href="https://buttondown.com/refer/ichimokutrendscreener" target="_blank">
-      Powered by Buttondown.
-    </a>
-  </p>
-</form>
-
-<p>
-  <a href="about.html">About this screener</a>
-</p>
-
-<div style="border:1px dashed #ccc;padding:12px;margin:20px 0;">
-  Ad space (optional). Keep this box for AdSense later.
+<div class="hero">
+  <h1>Ichimoku Trend Screener</h1>
+  <p>A rules-based dashboard highlighting UK and US stocks in sustained trend conditions — updated daily using public market data.</p>
+  <a href="screener.html" class="btn btn-primary">Open Live Screener</a>
 </div>
 
-<footer>
-  <small>
-    This site highlights market conditions based on defined rules.
-    It does not provide investment advice or recommendations.
-    <br>
-    Educational purposes only. Not financial advice.
-  </small>
+<div class="page" style="padding-top: 32px;">
+
+  <div class="card-grid">
+    <div class="card">
+      <h3>Daily Updates</h3>
+      <p>The screener runs automatically each trading day using fresh market data. No manual updates required.</p>
+    </div>
+    <div class="card">
+      <h3>Ichimoku Logic</h3>
+      <p>Stocks are filtered using price-to-cloud position, momentum scores, and relative strength — not predictions.</p>
+    </div>
+    <div class="card">
+      <h3>UK &amp; US Markets</h3>
+      <p>Covers both UK and US listed equities. Filter by market, momentum threshold, or search by ticker.</p>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>Educational purposes only.</strong> This site highlights market conditions based on defined rules.
+    It does not provide investment advice, signals, or recommendations.
+    Always do your own research before making any financial decisions.
+  </div>
+
+  <div class="email-form">
+    <h2>Stay Updated</h2>
+    <p>Get occasional updates when the screener data or methodology changes.</p>
+    <form
+      action="https://buttondown.com/api/emails/embed-subscribe/ichimokutrendscreener"
+      method="post"
+    >
+      <input type="hidden" name="tag" value="site-homepage">
+      <input type="email" name="email" id="bd-email" placeholder="you@example.com" required>
+      <input type="submit" value="Subscribe">
+    </form>
+    <p class="bd-credit">
+      <a href="https://buttondown.com/refer/ichimokutrendscreener" target="_blank" rel="noopener">Powered by Buttondown</a>
+    </p>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  This site highlights market conditions based on defined rules. It does not provide investment advice or recommendations.<br>
+  Educational purposes only. Not financial advice. &nbsp;&middot;&nbsp;
+  <a href="privacy.html">Privacy Policy</a> &nbsp;&middot;&nbsp;
+  <a href="how-it-works.html">How It Works</a>
 </footer>
 
 </body>
 </html>
-

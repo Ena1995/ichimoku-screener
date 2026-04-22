@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>How It Works – Ichimoku Trend Screener</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How the Ichimoku Trend Screener works — the rules, filters, and data sources behind the daily stock screener.">
+  <meta name="robots" content="index, follow">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">Ichimoku Screener</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="screener.html">Screener</a></li>
+    <li><a href="how-it-works.html" class="active">How It Works</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
+
+<div class="page">
+  <div class="prose">
+    <h1>How It Works</h1>
+    <p class="lead">The screener applies a defined set of rules to daily price data and surfaces stocks where specific Ichimoku conditions are currently present.</p>
+
+    <h2>Step 1 &mdash; Daily data fetch</h2>
+    <p>
+      Each trading day, price data is collected automatically for a defined universe of
+      UK and US listed stocks. This runs without any manual intervention and typically
+      completes shortly after market close.
+    </p>
+
+    <h2>Step 2 &mdash; Ichimoku calculations</h2>
+    <p>For each stock the following Ichimoku values are calculated from daily close prices:</p>
+    <ul>
+      <li><strong>Tenkan-sen</strong> &mdash; 9-period midpoint (conversion line)</li>
+      <li><strong>Kijun-sen</strong> &mdash; 26-period midpoint (base line)</li>
+      <li><strong>Senkou Span A</strong> &mdash; average of Tenkan and Kijun, projected forward 26 periods</li>
+      <li><strong>Senkou Span B</strong> &mdash; 52-period midpoint, projected forward 26 periods</li>
+    </ul>
+    <p>
+      These four lines define the Ichimoku cloud (Kumo). The cloud provides a visual
+      representation of trend direction and acts as a dynamic zone of support or resistance.
+    </p>
+
+    <h2>Step 3 &mdash; Screening rules</h2>
+    <p>A stock passes the screen only if it meets all of the following conditions:</p>
+    <ul>
+      <li>Price is trading <strong>above the cloud</strong> (bullish trend position)</li>
+      <li>The cloud itself is <strong>bullish</strong> &mdash; Span A is above Span B, meaning the future cloud is green</li>
+      <li>Momentum score meets the minimum threshold</li>
+    </ul>
+
+    <h2>Step 4 &mdash; Momentum score</h2>
+    <p>
+      A composite momentum score is calculated from relative strength measures across
+      multiple timeframes. The score is shown on the screener alongside 1-month and
+      3-month relative strength figures. Higher scores indicate stronger recent trend momentum
+      relative to the broader market.
+    </p>
+
+    <h2>Step 5 &mdash; Output</h2>
+    <p>
+      Results are written to a data file and published automatically to the screener page.
+      The "Last updated" date on the screener reflects when the most recent daily run
+      completed. There may be a short delay between market close and data availability.
+    </p>
+
+    <h2>Columns explained</h2>
+    <ul>
+      <li><strong>Ticker</strong> &mdash; stock symbol; click to open a TradingView chart with the Ichimoku overlay pre-loaded</li>
+      <li><strong>Market</strong> &mdash; UK or US listed</li>
+      <li><strong>Price</strong> &mdash; latest close price</li>
+      <li><strong>MA50 diff %</strong> &mdash; percentage distance from the 50-day moving average</li>
+      <li><strong>RS 1m %</strong> &mdash; 1-month relative strength vs the broader market</li>
+      <li><strong>RS 3m %</strong> &mdash; 3-month relative strength vs the broader market</li>
+      <li><strong>Momentum</strong> &mdash; composite momentum score; higher means stronger recent trend</li>
+      <li><strong>Label</strong> &mdash; trend description derived from the screening rules</li>
+    </ul>
+
+    <div class="disclaimer">
+      <strong>Educational purposes only.</strong> These rules describe a mechanical screen.
+      They are not a trading strategy, investment system, or financial advice. Past conditions
+      do not predict future results. Always do your own research before making any financial decisions.
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  This site highlights market conditions based on defined rules. It does not provide investment advice or recommendations.<br>
+  Educational purposes only. Not financial advice. &nbsp;&middot;&nbsp;
+  <a href="privacy.html">Privacy Policy</a> &nbsp;&middot;&nbsp;
+  <a href="about.html">About</a>
+</footer>
+
+</body>
+</html>
