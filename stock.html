@@ -2,55 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Stock view</title>
+  <title>Stock Chart – Ichimoku Trend Screener</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="style.css">
   <style>
-    body { font-family: Arial, sans-serif; background:#f8f9fb; margin:0; padding:24px; color:#222; }
-    .wrap { max-width: 1200px; margin: 0 auto; }
-    a { color: inherit; }
-    .card { background:#fff; border:1px solid #e5e5e5; border-radius:12px; padding:16px; margin: 14px 0; }
-    iframe { width:100%; height:560px; border:0; border-radius: 12px; }
-    .meta { color:#666; font-size:0.95rem; }
+    iframe { width: 100%; height: 560px; border: 0; border-radius: 8px; display: block; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <p><a href="screener.html">Back to screener</a></p>
-    <h1 id="title">Stock</h1>
-    <div class="meta" id="subtitle"></div>
 
-    <div class="card">
-      <iframe id="tv"></iframe>
-    </div>
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">Ichimoku Screener</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="screener.html">Screener</a></li>
+    <li><a href="how-it-works.html">How It Works</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
 
-    <p class="meta">Educational purposes only. Not financial advice.</p>
+<div class="page">
+  <p style="margin-bottom: 16px;"><a href="screener.html">&larr; Back to screener</a></p>
+
+  <h1 class="stock-title" id="title">Stock</h1>
+  <div class="stock-meta" id="subtitle"></div>
+
+  <div class="card" style="padding: 16px;">
+    <iframe id="tv"></iframe>
   </div>
 
-  <script>
-    function getParam(name) {
-      const u = new URL(window.location.href);
-      return u.searchParams.get(name);
-    }
+  <p class="screener-meta" style="margin-top: 14px;">
+    Educational purposes only. Not financial advice.
+  </p>
+</div>
 
-    const t = (getParam("t") || "").toUpperCase();
-    const m = (getParam("m") || "").toUpperCase();
+<footer class="site-footer">
+  This site highlights market conditions based on defined rules. It does not provide investment advice or recommendations.<br>
+  Educational purposes only. Not financial advice. &nbsp;&middot;&nbsp;
+  <a href="privacy.html">Privacy Policy</a> &nbsp;&middot;&nbsp;
+  <a href="how-it-works.html">How It Works</a>
+</footer>
 
-    document.getElementById("title").textContent = t || "Stock";
-    document.getElementById("subtitle").textContent = m ? `Market: ${m}` : "";
+<script>
+  function getParam(name) {
+    const u = new URL(window.location.href);
+    return u.searchParams.get(name);
+  }
 
-    // TradingView often needs an exchange prefix for best results.
-    // For UK tickers you can try LSE: (some tickers differ), for US try NASDAQ: or NYSE:
-    // We will default to raw symbol, and TradingView lets you edit on the widget.
-    const symbol = t;
+  const t = (getParam("t") || "").toUpperCase();
+  const m = (getParam("m") || "").toUpperCase();
 
-    const src =
-      "https://s.tradingview.com/widgetembed/?" +
-      "symbol=" + encodeURIComponent(symbol) +
-      "&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=0" +
-      "&toolbarbg=f1f3f6" +
-      "&studies=%5B%22IchimokuCloud%40tv-basicstudies%22%5D";
+  document.getElementById("title").textContent = t || "Stock";
+  document.getElementById("subtitle").textContent = m ? "Market: " + m : "";
 
-    document.getElementById("tv").src = src;
-  </script>
+  // TradingView often needs an exchange prefix for best results.
+  // For UK tickers you can try LSE: (some tickers differ), for US try NASDAQ: or NYSE:
+  // We default to raw symbol — TradingView lets the user edit on the widget.
+  const symbol = t;
+
+  const src =
+    "https://s.tradingview.com/widgetembed/?" +
+    "symbol=" + encodeURIComponent(symbol) +
+    "&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=0" +
+    "&toolbarbg=f1f3f6" +
+    "&studies=%5B%22IchimokuCloud%40tv-basicstudies%22%5D";
+
+  document.getElementById("tv").src = src;
+</script>
+
 </body>
 </html>

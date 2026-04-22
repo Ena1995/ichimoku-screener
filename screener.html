@@ -2,62 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Ichimoku Trend Screener</title>
+  <title>Live Screener – Ichimoku Trend Screener</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Rules-based Ichimoku momentum screener for UK and US stocks. Filter by market, momentum score, and trend label. Updated daily.">
   <meta name="robots" content="index, follow" />
-  <style>
-    body { font-family: Arial, sans-serif; background:#f8f9fb; margin:0; padding:24px; color:#222; }
-    .wrap { max-width: 1200px; margin: 0 auto; }
-    header { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; }
-    h1 { margin:0; font-size: 1.8rem; }
-    .meta { color:#666; font-size: 0.95rem; }
-    .controls { display:flex; gap:10px; flex-wrap:wrap; margin: 16px 0; }
-    input, select { padding:10px; border:1px solid #ccc; border-radius:8px; font-size: 0.95rem; background:#fff; }
-    .chip { border:1px solid #e5e5e5; background:#fff; border-radius:999px; padding:6px 10px; font-size:0.9rem; cursor:pointer; }
-    .chip.active { border-color:#bbb; }
-    table { width:100%; border-collapse: collapse; background:#fff; border:1px solid #e5e5e5; border-radius:12px; overflow:hidden; }
-    th, td { padding:12px; border-bottom:1px solid #eee; text-align:left; font-size:0.95rem; }
-    th { background:#fafafa; cursor:pointer; user-select:none; }
-    tr:hover td { background:#fcfcff; }
-    .right { text-align:right; }
-    .muted { color:#777; }
-    .adbox { margin: 14px 0; padding: 14px; border: 1px dashed #cfcfcf; border-radius: 12px; background: #fff; }
-    a { color: inherit; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Ichimoku Trend Screener</h1>
-        <div class="meta">Rules based overview. Educational purposes only. Not financial advice.</div>
-      </div>
-      <div class="meta" id="lastUpdated">Last updated: ...</div>
-    </header>
 
-    <div class="controls">
-      <input id="search" placeholder="Search ticker..." />
-      <select id="market">
-        <option value="">All markets</option>
-        <option value="UK">UK</option>
-        <option value="US">US</option>
-      </select>
-      <select id="minMomentum">
-        <option value="">Any momentum</option>
-        <option value="70">70+</option>
-        <option value="85">85+</option>
-      </select>
+<nav class="site-nav">
+  <a class="nav-brand" href="index.html">Ichimoku Screener</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="screener.html" class="active">Screener</a></li>
+    <li><a href="how-it-works.html">How It Works</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+</nav>
 
-      <button class="chip active" data-top="all" type="button">All</button>
-      <button class="chip" data-top="20" type="button">Top 20</button>
-      <button class="chip" data-top="50" type="button">Top 50</button>
+<div class="page">
+  <div class="screener-header">
+    <div>
+      <h1>Live Screener</h1>
+      <div class="screener-meta">Rules-based overview. Educational purposes only. Not financial advice.</div>
     </div>
+    <div class="screener-meta" id="lastUpdated">Last updated: &hellip;</div>
+  </div>
 
-    <div class="adbox">
-      Ad space (optional). Keep this box for AdSense later.
-    </div>
+  <div class="controls">
+    <input id="search" placeholder="Search ticker&hellip;" />
+    <select id="market">
+      <option value="">All markets</option>
+      <option value="UK">UK</option>
+      <option value="US">US</option>
+    </select>
+    <select id="minMomentum">
+      <option value="">Any momentum</option>
+      <option value="70">70+</option>
+      <option value="85">85+</option>
+    </select>
+    <button class="chip active" data-top="all" type="button">All</button>
+    <button class="chip" data-top="20" type="button">Top 20</button>
+    <button class="chip" data-top="50" type="button">Top 50</button>
+  </div>
 
-    <table id="table">
+  <div class="table-wrap">
+    <table class="data-table" id="table">
       <thead>
         <tr>
           <th data-key="ticker">Ticker</th>
@@ -72,13 +62,21 @@
       </thead>
       <tbody></tbody>
     </table>
-
-    <p class="meta" style="margin-top:14px;">
-      Data is auto generated. Conditions can change quickly. Always do your own research.
-    </p>
   </div>
 
- <script>
+  <p class="screener-meta" style="margin-top: 14px;">
+    Data is auto-generated. Conditions can change quickly. Always do your own research.
+  </p>
+</div>
+
+<footer class="site-footer">
+  This site highlights market conditions based on defined rules. It does not provide investment advice or recommendations.<br>
+  Educational purposes only. Not financial advice. &nbsp;&middot;&nbsp;
+  <a href="privacy.html">Privacy Policy</a> &nbsp;&middot;&nbsp;
+  <a href="how-it-works.html">How It Works</a>
+</footer>
+
+<script>
   const state = {
     rows: [],
     sortKey: "Momentum",
@@ -174,3 +172,6 @@
     });
   });
 </script>
+
+</body>
+</html>
